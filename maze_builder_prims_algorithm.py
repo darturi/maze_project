@@ -1,3 +1,5 @@
+import math
+import random
 from random import randrange
 
 
@@ -45,6 +47,21 @@ def get_adj_cells(height, width, cell):
     return non_border_cells
 
 
+#def check_wall_division(wall_cell, visited_cell):
+#    w_x, w_y, v_x, v_y = wall_cell[0], wall_cell[1], visited_cell[0], visited_cell[1]
+#    # Determine if horizontally or vertically adjacent
+#    if math.abs(w_x - v_x) == 1:
+#        pass
+
+
+# Using this function using the coordinates from a wall cell the program can determine the nearest visited cell
+def get_adj_visited_cell(height, width, wall_cell, visited_cells):
+    adj_cells = get_adj_cells(height, width, wall_cell)
+    for cell in adj_cells:
+        if cell in visited_cells:
+            return cell
+
+
 def maze_creator():
     # define height and width
     height = 5
@@ -54,7 +71,6 @@ def maze_creator():
     maze = create_blank_maze(height, width)
 
     # initialize relevant lists
-    wall_list = []
     visited_cells = []
 
     # start off the program with a single random cell
@@ -67,8 +83,19 @@ def maze_creator():
     for i in maze:
         print(i)
 
-    print(start_cell)
-    print(get_adj_cells(height, width, start_cell))
+    # Initialize list of wall cells
+    wall_list = get_adj_cells(height, width, start_cell)
+
+    print("start cell:", start_cell)
+    print("wall_list:", wall_list)
+
+    # Next bit should be contained in a while loop that loops while length of wall_list > 0
+    # However for testing purposes at the moment it will be a standalone
+
+    wall_cell = random.choice(wall_list)
+    print("wall_cell:", wall_cell)
+
+    print("Nearest Visited Cell:", get_adj_visited_cell(height, width, wall_cell, visited_cells))
 
 
 def main():
