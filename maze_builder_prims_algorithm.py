@@ -47,11 +47,25 @@ def get_adj_cells(height, width, cell):
     return non_border_cells
 
 
-#def check_wall_division(wall_cell, visited_cell):
-#    w_x, w_y, v_x, v_y = wall_cell[0], wall_cell[1], visited_cell[0], visited_cell[1]
-#    # Determine if horizontally or vertically adjacent
-#    if math.abs(w_x - v_x) == 1:
-#        pass
+def check_wall_division(wall_cell, visited_cell, visited_cells_list):
+    w_x, w_y, v_x, v_y = wall_cell[0], wall_cell[1], visited_cell[0], visited_cell[1]
+    # Determine if horizontally or vertically adjacent
+    if w_x - v_x == 1:
+        if [w_x - 1, w_y] in visited_cells_list:
+            return True
+        return False
+    elif w_x - v_x == -1:
+        if [w_x + 1, w_y] in visited_cells_list:
+            return True
+        return False
+    elif w_y - v_y == 1:
+        if [w_x, w_y + 1] in visited_cells_list:
+            return True
+        return False
+    else:
+        if [w_x, w_y - 1] in visited_cells_list:
+            return True
+        return False
 
 
 # Using this function using the coordinates from a wall cell the program can determine the nearest visited cell
@@ -96,6 +110,7 @@ def maze_creator():
     print("wall_cell:", wall_cell)
 
     print("Nearest Visited Cell:", get_adj_visited_cell(height, width, wall_cell, visited_cells))
+    print("Cell Division Status:", check_wall_division(wall_cell, start_cell, visited_cells))
 
 
 def main():
