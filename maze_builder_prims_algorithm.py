@@ -33,13 +33,7 @@ def get_adj_cells(height, width, cell):
     x, y = cell[0], cell[1]
 
     # Creates a list of all cells adjacent to the one passed in as input
-    adj_cell_list = []
-    for row in range(x-1, x+2):
-        for col in range(y-1, y+2):
-            adj_cell_list.append([row, col])
-
-    # Removes original cell
-    adj_cell_list.remove(cell)
+    adj_cell_list = [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
 
     # Remove all the cells that are adjacent to the original cell but are walls
     non_border_cells = []
