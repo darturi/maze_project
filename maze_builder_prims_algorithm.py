@@ -1,4 +1,3 @@
-import math
 import random
 from random import randrange
 
@@ -47,77 +46,108 @@ def get_adj_cells(height, width, cell, previously_checked_walls=[]):
     return non_border_cells
 
 
-def check_wall_division(wall_cell, visited_cell, visited_cells_list):
-    w_x, w_y, v_x, v_y = wall_cell[0], wall_cell[1], visited_cell[0], visited_cell[1]
-    # Determine if horizontally or vertically adjacent
-    if w_x - v_x == 1:
-        if [w_x - 1, w_y] in visited_cells_list:
-            return True
+# Returns True if wall divides two visited cells or False if not
+# (if it's False delete the wall)
+def check_wall_division(height, width, wall_cell, checked_cells, maze):
+    x, y = wall_cell[0], wall_cell[1]
+
+    # Creates a list of all cells adjacent to the one passed in as input
+    adj_cells = [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
+
+    checked_count = 0
+    unchecked_count = 0
+    for cell in adj_cells:
+        if maze[cell[0]][cell[1]] == ['c']:
+            checked_count += 1
+        elif maze[cell[0]][cell[1]] == ['u']:
+            unchecked_count += 1
+
+    if checked_count < 2 and unchecked_count > 1:
         return False
-    elif w_x - v_x == -1:
-        if [w_x + 1, w_y] in visited_cells_list:
-            return True
-        return False
-    elif w_y - v_y == 1:
-        if [w_x, w_y + 1] in visited_cells_list:
-            return True
-        return False
-    else:
-        if [w_x, w_y - 1] in visited_cells_list:
-            return True
-        return False
+    return True
+
+
+#def get_unvisited_cell(height, width, wall_cell, visited_cells_list):
+    #x, y = wall_cell[0], wall_cell[1]
+    #visited_cell = get_adj_visited_cell(height, width, wall_cell, visited_cells_list)
+
+    # Creates a list of all cells adjacent to the one passed in as input
+   # adj_cells = [[[x, y - 1], [x, y + 1]], [[x - 1, y], [x + 1, y]]]
+  #  if visited_cell in adj_cells[0]:
+ #       adj_cells = adj_cells[0]
+#    else:
+#        adj_cells = adj_cells[1]
+
+#    adj_cells.remove(visited_cell)
+#    return adj_cells[0]
 
 
 # Using this function using the coordinates from a wall cell the program can determine the nearest visited cell
-def get_adj_visited_cell(height, width, wall_cell, visited_cells):
-    adj_cells = get_adj_cells(height, width, wall_cell)
-    for cell in adj_cells:
-        if cell in visited_cells:
-            return cell
+#def get_adj_visited_cell(height, width, wall_cell, visited_cells):
+#    adj_cells = get_adj_cells(height, width, wall_cell)
+#    for cell in adj_cells:
+#        if cell in visited_cells:
+#            return cell
 
 
 def maze_creator():
     # define height and width
-    height = 5
+    height = 10
     width = 10
+
+    unchecked_cells = [[i, j] for i in range(width) for j in range(height)]
+    checked_cells = []
+    wall_cell_list = []
 
     # create blank maze
     maze = create_blank_maze(height, width)
 
-    # initialize relevant lists
-    visited_cells = []
-
-    # start off the program with a single random cell
+    # Setting up the starting checked cell
     start_cell = select_random_start_cell(height, width)
-    # Add cell to visited cells list
-    visited_cells.append(start_cell)
-    # Edit graphical representation to reflect visitation of random start cell
-    maze[start_cell[0]][start_cell[1]] = ["v"]
+    maze[start_cell[0]][start_cell[1]] = ['c']
+    checked_cells.append(start_cell)
 
-    for i in maze:
-        print(i)
+    # Setting up the starting wall cells
+    for wall_cell in get_adj_cells(height, width, start_cell):
+        maze[wall_cell[0]][wall_cell[1]] = ['w']
+        wall_cell_list.append(wall_cell)
 
-    # Initialize list of wall cells
-    wall_list = get_adj_cells(height, width, start_cell)
-    previously_checked_walls =[]
+    # update unchecked cell list
+    unchecked_cells.remove(start_cell)
+    for cell in wall_cell_list:
+        unchecked_cells.remove(cell)
 
-    print("start cell:", start_cell)
-    print("wall_list:", wall_list)
+    while len(wall_cell_list) > 0:
+        wall_cell = random.choice(wall_cell_list)
+        check_div = check_wall_division(height, width, wall_cell, checked_cells, maze)
 
-    # Next bit should be contained in a while loop that loops while length of wall_list > 0
-    # However for testing purposes at the moment it will be a standalone
+        if not check_div:
+            checked_cells.append(wall_cell)
+            maze[wall_cell[0]][wall_cell[1]] = ['c']
+            adj_cells = get_adj_cells(height, width, wall_cell)
+            for cell in adj_cells:
+                if cell not in checked_cells and cell not in wall_cell_list:
+                    wall_cell_list.append(cell)
+                    maze[cell[0]][cell[1]] = ['w']
 
-    wall_cell = random.choice(wall_list)
-    print("wall_cell:", wall_cell)
+                    # update unchecked cell list
+                    if cell in unchecked_cells:
+                        unchecked_cells.remove(cell)
 
-    print("Nearest Visited Cell:", get_adj_visited_cell(height, width, wall_cell, visited_cells))
-    print("Cell Division Status:", check_wall_division(wall_cell, start_cell, visited_cells))
+        wall_cell_list.remove(wall_cell)
+
+    # Convert unvisited cells to walls
+    for cell in unchecked_cells:
+        x, y = cell[0], cell[1]
+        wall_cell_list.append(cell)
+        maze[x][y] = ['w']
+
+    return maze
 
 
 def main():
-    maze_creator()
-    # print(get_adj_cells(5, 10, [1, 1]))
-    # print(check_if_border(5, 10, [2, 2]))
+    for i in maze_creator():
+        print(i)
 
 
 main()
