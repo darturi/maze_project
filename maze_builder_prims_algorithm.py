@@ -126,5 +126,5 @@ def main():
     for i in maze_creator():
         print(i)
 
-# testing
+
 main()
