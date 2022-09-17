@@ -160,8 +160,14 @@ def maze_creator():
 
         wall_cell_list.remove(wall_cell)
 
-        for i in maze:
-            print(i)
+    # Convert unvisited cells to walls
+    for cell in unchecked_cells:
+        x, y = cell[0], cell[1]
+        wall_cell_list.append(cell)
+        maze[x][y] = ['w']
+
+    for i in maze:
+        print(i)
 
 
 def main():
