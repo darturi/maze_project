@@ -67,29 +67,6 @@ def check_wall_division(height, width, wall_cell, checked_cells, maze):
     return True
 
 
-#def get_unvisited_cell(height, width, wall_cell, visited_cells_list):
-    #x, y = wall_cell[0], wall_cell[1]
-    #visited_cell = get_adj_visited_cell(height, width, wall_cell, visited_cells_list)
-
-    # Creates a list of all cells adjacent to the one passed in as input
-   # adj_cells = [[[x, y - 1], [x, y + 1]], [[x - 1, y], [x + 1, y]]]
-  #  if visited_cell in adj_cells[0]:
- #       adj_cells = adj_cells[0]
-#    else:
-#        adj_cells = adj_cells[1]
-
-#    adj_cells.remove(visited_cell)
-#    return adj_cells[0]
-
-
-# Using this function using the coordinates from a wall cell the program can determine the nearest visited cell
-#def get_adj_visited_cell(height, width, wall_cell, visited_cells):
-#    adj_cells = get_adj_cells(height, width, wall_cell)
-#    for cell in adj_cells:
-#        if cell in visited_cells:
-#            return cell
-
-
 def maze_creator():
     # define height and width
     height = 10
