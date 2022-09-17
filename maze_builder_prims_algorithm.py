@@ -1,4 +1,3 @@
-import math
 import random
 from random import randrange
 
@@ -49,26 +48,6 @@ def get_adj_cells(height, width, cell, previously_checked_walls=[]):
 
 # Returns True if wall divides two visited cells or False if not
 # (if it's False delete the wall)
-#def check_wall_division(height, width, wall_cell, checked_cells, maze):
-#    x, y = wall_cell[0], wall_cell[1]
-#    visited_cell = get_adj_visited_cell(height, width, wall_cell, checked_cells)
-#
-#    # Creates a list of all cells adjacent to the one passed in as input
-#    adj_cells = [[[x, y - 1], [x, y + 1]], [[x - 1, y], [x + 1, y]]]
-#    if visited_cell in adj_cells[0]:
-#        adj_cells = adj_cells[0]
-#    else:
-#        adj_cells = adj_cells[1]
-#
-#    adj_cells.remove(visited_cell)
-#    print("opposite cell:", adj_cells[0])
-#    adj_x, adj_y = adj_cells[0][0], adj_cells[0][1]
-#    if maze[adj_x][adj_y] != ['u']:
-#        return True
-#    else:
-#        return False
-
-
 def check_wall_division(height, width, wall_cell, checked_cells, maze):
     x, y = wall_cell[0], wall_cell[1]
 
@@ -76,36 +55,39 @@ def check_wall_division(height, width, wall_cell, checked_cells, maze):
     adj_cells = [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
 
     checked_count = 0
+    unchecked_count = 0
     for cell in adj_cells:
         if maze[cell[0]][cell[1]] == ['c']:
             checked_count += 1
+        elif maze[cell[0]][cell[1]] == ['u']:
+            unchecked_count += 1
 
-    if checked_count < 2:
+    if checked_count < 2 and unchecked_count > 1:
         return False
     return True
 
 
-def get_unvisited_cell(height, width, wall_cell, visited_cells_list):
-    x, y = wall_cell[0], wall_cell[1]
-    visited_cell = get_adj_visited_cell(height, width, wall_cell, visited_cells_list)
+#def get_unvisited_cell(height, width, wall_cell, visited_cells_list):
+    #x, y = wall_cell[0], wall_cell[1]
+    #visited_cell = get_adj_visited_cell(height, width, wall_cell, visited_cells_list)
 
     # Creates a list of all cells adjacent to the one passed in as input
-    adj_cells = [[[x, y - 1], [x, y + 1]], [[x - 1, y], [x + 1, y]]]
-    if visited_cell in adj_cells[0]:
-        adj_cells = adj_cells[0]
-    else:
-        adj_cells = adj_cells[1]
+   # adj_cells = [[[x, y - 1], [x, y + 1]], [[x - 1, y], [x + 1, y]]]
+  #  if visited_cell in adj_cells[0]:
+ #       adj_cells = adj_cells[0]
+#    else:
+#        adj_cells = adj_cells[1]
 
-    adj_cells.remove(visited_cell)
-    return adj_cells[0]
+#    adj_cells.remove(visited_cell)
+#    return adj_cells[0]
 
 
 # Using this function using the coordinates from a wall cell the program can determine the nearest visited cell
-def get_adj_visited_cell(height, width, wall_cell, visited_cells):
-    adj_cells = get_adj_cells(height, width, wall_cell)
-    for cell in adj_cells:
-        if cell in visited_cells:
-            return cell
+#def get_adj_visited_cell(height, width, wall_cell, visited_cells):
+#    adj_cells = get_adj_cells(height, width, wall_cell)
+#    for cell in adj_cells:
+#        if cell in visited_cells:
+#            return cell
 
 
 def maze_creator():
@@ -135,20 +117,14 @@ def maze_creator():
     for cell in wall_cell_list:
         unchecked_cells.remove(cell)
 
-    for i in maze:
-        print(i)
-
     while len(wall_cell_list) > 0:
         wall_cell = random.choice(wall_cell_list)
-        print("wall cell:", wall_cell)
         check_div = check_wall_division(height, width, wall_cell, checked_cells, maze)
-        print("check_div", check_div)
 
         if not check_div:
             checked_cells.append(wall_cell)
             maze[wall_cell[0]][wall_cell[1]] = ['c']
             adj_cells = get_adj_cells(height, width, wall_cell)
-            print('adj_cells', adj_cells)
             for cell in adj_cells:
                 if cell not in checked_cells and cell not in wall_cell_list:
                     wall_cell_list.append(cell)
@@ -166,12 +142,12 @@ def maze_creator():
         wall_cell_list.append(cell)
         maze[x][y] = ['w']
 
-    for i in maze:
-        print(i)
+    return maze
 
 
 def main():
-    maze_creator()
+    for i in maze_creator():
+        print(i)
 
 
 main()
