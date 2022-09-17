@@ -83,8 +83,8 @@ def check_wall_division(wall_cell, maze):
 
 def maze_creator():
     # define height and width
-    height = 20
-    width = 20
+    height = 50
+    width = 50
 
     unchecked_cells = [[i, j] for i in range(width) for j in range(height)]
     checked_cells = []
@@ -140,11 +140,27 @@ def maze_creator():
 
 
 def create_gui(maze):
-    box_w = 30
-
     master = Tk()
-    w = Canvas(master, width=600, height=600)
+    master.geometry(f'{650}x{600 + 225}')
+    master.title("Maze Builder")
 
+    # Create canvas which will house the text elements for the GUI
+    text_canvas = Canvas(master, width=600, height=225)
+    text_canvas.create_text(300, 50, text="Maze Builder")
+    text_canvas.pack()
+
+    # Create canvas which will house the maze animation
+    w = Canvas(master, width=600, height=600)
+    w.pack(side="bottom")
+
+    if len(maze) > len(maze[0]):
+        box_w_divisor = len(maze)
+    else:
+        box_w_divisor = len(maze[0])
+
+    box_w = 600 // box_w_divisor
+
+    # Draw the actual maze in rectangles
     for row in range(len(maze)):
         for col in range(len(maze[0])):
             if maze[row][col] == ['w']:
@@ -159,9 +175,6 @@ def create_gui(maze):
 
 def main():
     maze = maze_creator()
-
-    for i in maze_creator():
-        print(i)
 
     create_gui(maze)
 
