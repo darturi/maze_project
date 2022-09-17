@@ -1,5 +1,6 @@
 import random
 from random import randrange
+from tkinter import *
 
 
 def create_blank_maze(row_num, col_num):
@@ -82,8 +83,8 @@ def check_wall_division(wall_cell, maze):
 
 def maze_creator():
     # define height and width
-    height = 10
-    width = 10
+    height = 20
+    width = 20
 
     unchecked_cells = [[i, j] for i in range(width) for j in range(height)]
     checked_cells = []
@@ -138,9 +139,30 @@ def maze_creator():
     return maze
 
 
+def create_gui(maze):
+    box_w = 30
+
+    master = Tk()
+    w = Canvas(master, width=600, height=600)
+
+    for row in range(len(maze)):
+        for col in range(len(maze[0])):
+            if maze[row][col] == ['w']:
+                w.create_rectangle(box_w*col, box_w*row, box_w*col + box_w, box_w*row + box_w,
+                                   fill="blue", outline="black")
+            else:
+                w.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                   fill="red", outline="black")
+    w.pack()
+    master.mainloop()
+
+
 def main():
+    maze = maze_creator()
+
     for i in maze_creator():
         print(i)
 
+    create_gui(maze)
 
 main()
