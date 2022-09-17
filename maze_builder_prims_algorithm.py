@@ -46,9 +46,22 @@ def get_adj_cells(height, width, cell, previously_checked_walls=[]):
     return non_border_cells
 
 
+def pick_entry_and_exit(height, width, maze):
+    entry_y = -1
+    exit_y = -1
+
+    while maze[entry_y][1] != ['c']:
+        entry_y = 1 + randrange(height - 2)
+
+    while maze[exit_y][width - 2] != ['c']:
+        exit_y = 1 + randrange(height - 2)
+
+    return [[entry_y, 0], [exit_y, width-1]]
+
+
 # Returns True if wall divides two visited cells or False if not
 # (if it's False delete the wall)
-def check_wall_division(height, width, wall_cell, checked_cells, maze):
+def check_wall_division(wall_cell, maze):
     x, y = wall_cell[0], wall_cell[1]
 
     # Creates a list of all cells adjacent to the one passed in as input
@@ -96,7 +109,7 @@ def maze_creator():
 
     while len(wall_cell_list) > 0:
         wall_cell = random.choice(wall_cell_list)
-        check_div = check_wall_division(height, width, wall_cell, checked_cells, maze)
+        check_div = check_wall_division(wall_cell, maze)
 
         if not check_div:
             checked_cells.append(wall_cell)
@@ -118,6 +131,9 @@ def maze_creator():
         x, y = cell[0], cell[1]
         wall_cell_list.append(cell)
         maze[x][y] = ['w']
+
+    for cell in pick_entry_and_exit(height, width, maze):
+        maze[cell[0]][cell[1]] = ['c']
 
     return maze
 
