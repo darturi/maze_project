@@ -13,12 +13,12 @@ def create_blank_maze(row_num, col_num):
     return return_array
 
 
-def select_random_start_cell(height, width):
+def select_random_start_cell(row_num, col_num):
     # Pick random index for start cell
-    x_coordinate = 1 + randrange(height - 2)
-    y_coordinate = 1 + randrange(width - 2)
+    row = 1 + randrange(row_num - 2)
+    col = 1 + randrange(col_num - 2)
 
-    return [x_coordinate, y_coordinate]
+    return [row, col]
 
 
 # Checks if the cell passed in as the third parameter is a border
@@ -86,7 +86,7 @@ def maze_creator():
     height = 50
     width = 50
 
-    unchecked_cells = [[i, j] for i in range(width) for j in range(height)]
+    unchecked_cells = [[i, j] for i in range(height) for j in range(width)]
     checked_cells = []
     wall_cell_list = []
 
