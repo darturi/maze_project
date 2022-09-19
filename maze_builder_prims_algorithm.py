@@ -141,17 +141,17 @@ def maze_creator():
 
 def create_gui(maze):
     master = Tk()
-    master.geometry(f'{650}x{600 + 225}')
+    master.geometry(f'{600 + 225}x{600}')
     master.title("Maze Builder")
 
     # Create canvas which will house the text elements for the GUI
-    text_canvas = Canvas(master, width=600, height=225)
-    text_canvas.create_text(300, 50, text="Maze Builder")
-    text_canvas.pack()
+    text_canvas = Canvas(master, width=100, height=300)
+    text_canvas.create_text(50, 50, text="Maze Builder")
+    text_canvas.pack(side="left")
 
     # Create canvas which will house the maze animation
     w = Canvas(master, width=600, height=600)
-    w.pack(side="bottom")
+    w.pack(side="right")
 
     if len(maze) > len(maze[0]):
         box_w_divisor = len(maze)
@@ -177,5 +177,6 @@ def main():
     maze = maze_creator()
 
     create_gui(maze)
+
 
 main()
