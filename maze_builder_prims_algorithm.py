@@ -58,7 +58,7 @@ def pick_entry_and_exit(height, width, maze):
     while maze[exit_y][width - 2] != ['c']:
         exit_y = 1 + randrange(height - 2)
 
-    return [[entry_y, 0], [exit_y, width-1]]
+    return [[entry_y, 0], [exit_y, width - 1]]
 
 
 # Returns True if wall divides two visited cells or False if not
@@ -152,10 +152,17 @@ def get_width__and_height(canvas, w_entry, h_entry):
     print(height_val)
 
 
+def only_numbers(char):
+    return char.isdigit()
+
+
 def create_gui(maze):
     master = Tk()
     master.geometry(f'{600 + 225}x{600}')
     master.title("Maze Builder")
+
+    # Validation Check
+    validation = master.register(only_numbers)
 
     # Create canvas which will house the text elements for the GUI
     text_canvas = Canvas(master, width=100, height=300)
@@ -166,18 +173,17 @@ def create_gui(maze):
 
     # Create width and height entry fields and prompts
     text_canvas.create_text(60, 115, text="Maze Height: ")
-    height_entry = Entry(master)
+    height_entry = Entry(master, validate="key", validatecommand=(validation, '%S'))
     text_canvas.create_window(100, 140, window=height_entry)
 
     text_canvas.create_text(60, 175, text="Maze Width: ")
-    width_entry = Entry(master)
+    width_entry = Entry(master, validate="key", validatecommand=(validation, '%S'))
     text_canvas.create_window(100, 200, window=width_entry)
 
     # Create build maze button for input execution
     build_maze_button = Button(master, text="Build Maze", command=lambda: get_width__and_height(
-                                                                          w, width_entry, height_entry))
+        w, width_entry, height_entry))
     build_maze_button.place(x=100, y=375)
-    # build_maze_button.pack()
 
     # Create canvas which will house the maze animation
     w = Canvas(master, width=600, height=600)
@@ -194,7 +200,7 @@ def create_gui(maze):
     for row in range(len(maze)):
         for col in range(len(maze[0])):
             if maze[row][col] == ['w']:
-                w.create_rectangle(box_w*col, box_w*row, box_w*col + box_w, box_w*row + box_w,
+                w.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
                                    fill="blue", outline="black")
             else:
                 w.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
