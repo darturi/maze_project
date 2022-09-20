@@ -141,22 +141,40 @@ def maze_creator(h, w):
 
 
 def get_width__and_height(canvas, w_entry, h_entry):
-    width_val = w_entry.get()
-    height_val = h_entry.get()
+    width_val = int(w_entry.get())
+    height_val = int(h_entry.get())
 
-    # for char in width_val + height_val:
-    #    if not char.isdigit():
-    #        print("ERROR MESSAGE DISALLOW")
+    draw_maze(canvas, maze_creator(width_val, height_val))
 
-    print(width_val)
-    print(height_val)
+
+def draw_maze(canvas, maze):
+    if len(maze) > len(maze[0]):
+        box_w_divisor = len(maze)
+    else:
+        box_w_divisor = len(maze[0])
+
+    box_w = 600 // box_w_divisor
+
+    # Draw the actual maze in rectangles
+    canvas.create_rectangle(0, 0, 600, 600, fill="white", outline="white")
+    for row in range(len(maze)):
+        for col in range(len(maze[0])):
+            if maze[row][col] == ['w']:
+                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                        fill="blue", outline="black")
+            elif maze[row][col] == ['c']:
+                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                        fill="red", outline="black")
+            else:
+                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                        fill="grey", outline="black")
 
 
 def only_numbers(char):
     return char.isdigit()
 
 
-def create_gui(maze):
+def create_gui():
     master = Tk()
     master.geometry(f'{600 + 225}x{600}')
     master.title("Maze Builder")
@@ -174,10 +192,12 @@ def create_gui(maze):
     # Create width and height entry fields and prompts
     text_canvas.create_text(60, 115, text="Maze Height: ")
     height_entry = Entry(master, validate="key", validatecommand=(validation, '%S'))
+    height_entry.insert(END, '15')
     text_canvas.create_window(100, 140, window=height_entry)
 
     text_canvas.create_text(60, 175, text="Maze Width: ")
     width_entry = Entry(master, validate="key", validatecommand=(validation, '%S'))
+    width_entry.insert(END, '15')
     text_canvas.create_window(100, 200, window=width_entry)
 
     # Create build maze button for input execution
@@ -189,30 +209,15 @@ def create_gui(maze):
     w = Canvas(master, width=600, height=600)
     w.pack(side="right")
 
-    if len(maze) > len(maze[0]):
-        box_w_divisor = len(maze)
-    else:
-        box_w_divisor = len(maze[0])
+    # Draw the maze (is supposed to start out with a blank maze)
+    draw_maze(w, create_blank_maze(15, 15))
 
-    box_w = 600 // box_w_divisor
-
-    # Draw the actual maze in rectangles
-    for row in range(len(maze)):
-        for col in range(len(maze[0])):
-            if maze[row][col] == ['w']:
-                w.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
-                                   fill="blue", outline="black")
-            else:
-                w.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
-                                   fill="red", outline="black")
     w.pack()
     master.mainloop()
 
 
 def main():
-    maze = maze_creator(20, 20)
-
-    create_gui(maze)
+    create_gui()
 
 
 main()
