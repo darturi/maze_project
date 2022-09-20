@@ -1,6 +1,7 @@
 import random
 from random import randrange
 from tkinter import *
+from functools import partial
 
 
 def create_blank_maze(row_num, col_num):
@@ -139,6 +140,18 @@ def maze_creator(h, w):
     return maze
 
 
+def get_width__and_height(canvas, w_entry, h_entry):
+    width_val = w_entry.get()
+    height_val = h_entry.get()
+
+    # for char in width_val + height_val:
+    #    if not char.isdigit():
+    #        print("ERROR MESSAGE DISALLOW")
+
+    print(width_val)
+    print(height_val)
+
+
 def create_gui(maze):
     master = Tk()
     master.geometry(f'{600 + 225}x{600}')
@@ -161,7 +174,8 @@ def create_gui(maze):
     text_canvas.create_window(100, 200, window=width_entry)
 
     # Create build maze button for input execution
-    build_maze_button = Button(master, text="Build Maze")
+    build_maze_button = Button(master, text="Build Maze", command=lambda: get_width__and_height(
+                                                                          w, width_entry, height_entry))
     build_maze_button.place(x=100, y=375)
     # build_maze_button.pack()
 
