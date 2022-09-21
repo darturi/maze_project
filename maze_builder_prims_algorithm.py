@@ -1,5 +1,7 @@
 import random
 from random import randrange
+from tkinter import *
+from functools import partial
 
 
 def create_blank_maze(row_num, col_num):
@@ -12,12 +14,12 @@ def create_blank_maze(row_num, col_num):
     return return_array
 
 
-def select_random_start_cell(height, width):
+def select_random_start_cell(row_num, col_num):
     # Pick random index for start cell
-    x_coordinate = 1 + randrange(height - 2)
-    y_coordinate = 1 + randrange(width - 2)
+    row = 1 + randrange(row_num - 2)
+    col = 1 + randrange(col_num - 2)
 
-    return [x_coordinate, y_coordinate]
+    return [row, col]
 
 
 # Checks if the cell passed in as the third parameter is a border
@@ -46,9 +48,22 @@ def get_adj_cells(height, width, cell, previously_checked_walls=[]):
     return non_border_cells
 
 
+def pick_entry_and_exit(height, width, maze):
+    entry_y = -1
+    exit_y = -1
+
+    while maze[entry_y][1] != ['c']:
+        entry_y = 1 + randrange(height - 2)
+
+    while maze[exit_y][width - 2] != ['c']:
+        exit_y = 1 + randrange(height - 2)
+
+    return [[entry_y, 0], [exit_y, width - 1]]
+
+
 # Returns True if wall divides two visited cells or False if not
 # (if it's False delete the wall)
-def check_wall_division(height, width, wall_cell, checked_cells, maze):
+def check_wall_division(wall_cell, maze):
     x, y = wall_cell[0], wall_cell[1]
 
     # Creates a list of all cells adjacent to the one passed in as input
@@ -67,12 +82,12 @@ def check_wall_division(height, width, wall_cell, checked_cells, maze):
     return True
 
 
-def maze_creator():
+def maze_creator(h, w):
     # define height and width
-    height = 10
-    width = 10
+    height = h
+    width = w
 
-    unchecked_cells = [[i, j] for i in range(width) for j in range(height)]
+    unchecked_cells = [[i, j] for i in range(height) for j in range(width)]
     checked_cells = []
     wall_cell_list = []
 
@@ -96,7 +111,7 @@ def maze_creator():
 
     while len(wall_cell_list) > 0:
         wall_cell = random.choice(wall_cell_list)
-        check_div = check_wall_division(height, width, wall_cell, checked_cells, maze)
+        check_div = check_wall_division(wall_cell, maze)
 
         if not check_div:
             checked_cells.append(wall_cell)
@@ -119,12 +134,90 @@ def maze_creator():
         wall_cell_list.append(cell)
         maze[x][y] = ['w']
 
+    for cell in pick_entry_and_exit(height, width, maze):
+        maze[cell[0]][cell[1]] = ['c']
+
     return maze
 
 
-def main():
-    for i in maze_creator():
-        print(i)
+def get_width__and_height(canvas, w_entry, h_entry):
+    width_val = int(w_entry.get())
+    height_val = int(h_entry.get())
 
-# testing
+    draw_maze(canvas, maze_creator(width_val, height_val))
+
+
+def draw_maze(canvas, maze):
+    if len(maze) > len(maze[0]):
+        box_w_divisor = len(maze)
+    else:
+        box_w_divisor = len(maze[0])
+
+    box_w = 600 // box_w_divisor
+
+    # Draw the actual maze in rectangles
+    canvas.create_rectangle(0, 0, 600, 600, fill="white", outline="white")
+    for row in range(len(maze)):
+        for col in range(len(maze[0])):
+            if maze[row][col] == ['w']:
+                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                        fill="blue", outline="black")
+            elif maze[row][col] == ['c']:
+                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                        fill="red", outline="black")
+            else:
+                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                                        fill="grey", outline="black")
+
+
+def only_numbers(char):
+    return char.isdigit()
+
+
+def create_gui():
+    master = Tk()
+    master.geometry(f'{600 + 225}x{600}')
+    master.title("Maze Builder")
+
+    # Validation Check
+    validation = master.register(only_numbers)
+
+    # Create canvas which will house the text elements for the GUI
+    text_canvas = Canvas(master, width=100, height=300)
+    text_canvas.pack(side="left")
+
+    # Create title text
+    text_canvas.create_text(50, 50, text="Maze Builder")
+
+    # Create width and height entry fields and prompts
+    text_canvas.create_text(60, 115, text="Maze Height: ")
+    height_entry = Entry(master, validate="key", validatecommand=(validation, '%S'))
+    height_entry.insert(END, '15')
+    text_canvas.create_window(100, 140, window=height_entry)
+
+    text_canvas.create_text(60, 175, text="Maze Width: ")
+    width_entry = Entry(master, validate="key", validatecommand=(validation, '%S'))
+    width_entry.insert(END, '15')
+    text_canvas.create_window(100, 200, window=width_entry)
+
+    # Create build maze button for input execution
+    build_maze_button = Button(master, text="Build Maze", command=lambda: get_width__and_height(
+        w, width_entry, height_entry))
+    build_maze_button.place(x=100, y=375)
+
+    # Create canvas which will house the maze animation
+    w = Canvas(master, width=600, height=600)
+    w.pack(side="right")
+
+    # Draw the maze (is supposed to start out with a blank maze)
+    draw_maze(w, create_blank_maze(15, 15))
+
+    w.pack()
+    master.mainloop()
+
+
+def main():
+    create_gui()
+
+
 main()
