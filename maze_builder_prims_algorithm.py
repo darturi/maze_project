@@ -1,7 +1,6 @@
 import random
 from random import randrange
 from tkinter import *
-from functools import partial
 
 
 def create_blank_maze(row_num, col_num):
@@ -90,6 +89,7 @@ def maze_creator(h, w):
     unchecked_cells = [[i, j] for i in range(height) for j in range(width)]
     checked_cells = []
     wall_cell_list = []
+    step_list = []
 
     # create blank maze
     maze = create_blank_maze(height, width)
@@ -98,11 +98,15 @@ def maze_creator(h, w):
     start_cell = select_random_start_cell(height, width)
     maze[start_cell[0]][start_cell[1]] = ['c']
     checked_cells.append(start_cell)
+    # add to step list:
+    step_list.append([start_cell, maze[start_cell[0]][start_cell[1]]])
 
     # Setting up the starting wall cells
     for wall_cell in get_adj_cells(height, width, start_cell):
         maze[wall_cell[0]][wall_cell[1]] = ['w']
         wall_cell_list.append(wall_cell)
+        # Add to step list
+        step_list.append([wall_cell, maze[wall_cell[0]][wall_cell[1]]])
 
     # update unchecked cell list
     unchecked_cells.remove(start_cell)
@@ -116,12 +120,15 @@ def maze_creator(h, w):
         if not check_div:
             checked_cells.append(wall_cell)
             maze[wall_cell[0]][wall_cell[1]] = ['c']
+            # Add to step list
+            step_list.append([wall_cell, ['c']])
             adj_cells = get_adj_cells(height, width, wall_cell)
             for cell in adj_cells:
                 if cell not in checked_cells and cell not in wall_cell_list:
                     wall_cell_list.append(cell)
                     maze[cell[0]][cell[1]] = ['w']
-
+                    # Add to step list
+                    step_list.append([cell, ['w']])
                     # update unchecked cell list
                     if cell in unchecked_cells:
                         unchecked_cells.remove(cell)
@@ -137,14 +144,24 @@ def maze_creator(h, w):
     for cell in pick_entry_and_exit(height, width, maze):
         maze[cell[0]][cell[1]] = ['c']
 
-    return maze
+    return [maze, step_list]
 
 
-def get_width__and_height(canvas, w_entry, h_entry):
+def get_width__and_height(canvas, w_entry, h_entry, check_var, master):
     width_val = int(w_entry.get())
     height_val = int(h_entry.get())
 
-    draw_maze(canvas, maze_creator(width_val, height_val))
+    maze_vals = maze_creator(width_val, height_val)
+
+    if check_var.get() == 0:
+        draw_maze(canvas, maze_vals[0])
+    # This is not working
+    # |||
+    # VVV
+    else:
+        print(maze_vals[1])
+
+        animated_draw_maze(canvas, maze_vals[0], maze_vals[1], master)
 
 
 def draw_maze(canvas, maze):
@@ -168,6 +185,46 @@ def draw_maze(canvas, maze):
             else:
                 canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
                                         fill="grey", outline="black")
+
+
+# Expected maze return format:
+# [
+# [maze array],
+# [step_list]
+# ]
+
+# step_list format:
+# [
+# [[row, col], value], ...
+# ]
+def animated_draw_maze(canvas, maze, step_list, root):
+    row_num = len(maze)
+    col_num = len(maze[0])
+
+    if row_num > col_num:
+        box_w_divisor = row_num
+    else:
+        box_w_divisor = col_num
+
+    box_w = 600 // box_w_divisor
+
+    blank_maze = create_blank_maze(row_num, col_num)
+
+    draw_maze(canvas, blank_maze)
+
+    # Draw each new square that gets passed in
+    for i in range(len(step_list)):
+        row, col, val = step_list[i][0][0], step_list[i][0][1], step_list[i][1]
+        print(row, col, val)
+        if val == ['w']:
+            300, draw_box(canvas, box_w, row, col, "blue") # .after(500)
+        else:
+            draw_box(canvas, box_w, row, col, "red") # .after(500)
+
+
+def draw_box(canvas, box_w, row, col, color):
+    canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
+                            fill=color, outline="black")
 
 
 def only_numbers(char):
@@ -200,10 +257,15 @@ def create_gui():
     width_entry.insert(END, '15')
     text_canvas.create_window(100, 200, window=width_entry)
 
+    # Create animate checkbox
+    checked = IntVar()
+    velocity_vector_checkbox = Checkbutton(master, text="Toggle Animation", onvalue=1, offvalue=0, variable=checked)
+    velocity_vector_checkbox.place(x=80, y=375)
+
     # Create build maze button for input execution
     build_maze_button = Button(master, text="Build Maze", command=lambda: get_width__and_height(
-        w, width_entry, height_entry))
-    build_maze_button.place(x=100, y=375)
+        w, width_entry, height_entry, checked, master))
+    build_maze_button.place(x=100, y=400)
 
     # Create canvas which will house the maze animation
     w = Canvas(master, width=600, height=600)
