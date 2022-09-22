@@ -150,7 +150,7 @@ def maze_creator(h, w):
     return [maze, step_list]
 
 
-def get_width__and_height(canvas, w_entry, h_entry, check_var, master):
+def get_width__and_height(canvas, w_entry, h_entry, check_var, master, build_maze_button):
     width_val = int(w_entry.get())
     height_val = int(h_entry.get())
 
@@ -159,7 +159,8 @@ def get_width__and_height(canvas, w_entry, h_entry, check_var, master):
     if check_var.get() == 0:
         draw_maze(canvas, maze_vals[0])
     else:
-        animated_draw_maze(canvas, maze_vals[0], maze_vals[1], master)
+        build_maze_button['state'] = "disabled"
+        animated_draw_maze(canvas, maze_vals[0], maze_vals[1], master, build_maze_button)
 
 
 def draw_maze(canvas, maze):
@@ -195,7 +196,7 @@ def draw_maze(canvas, maze):
 # [
 # [[row, col], value], ...
 # ]
-def animated_draw_maze(canvas, maze, step_list, root):
+def animated_draw_maze(canvas, maze, step_list, root, build_maze_button):
     row_num = len(maze)
     col_num = len(maze[0])
 
@@ -210,7 +211,7 @@ def animated_draw_maze(canvas, maze, step_list, root):
 
     draw_maze(canvas, blank_maze)
 
-    add_box(canvas, box_w, step_list, root)
+    add_box(canvas, box_w, step_list, root, build_maze_button)
 
 
 def draw_box(canvas, box_w, row, col, color):
@@ -218,8 +219,9 @@ def draw_box(canvas, box_w, row, col, color):
                             fill=color, outline="black")
 
 
-def add_box(canvas, box_w, step_list, root):
+def add_box(canvas, box_w, step_list, root, build_maze_button):
     if not step_list:
+        build_maze_button['state'] = "active"
         return
     row, col, val = step_list[0][0][0], step_list[0][0][1], step_list[0][1]
     if val == ['c']:
@@ -227,7 +229,7 @@ def add_box(canvas, box_w, step_list, root):
     else:
         color = "blue"
     draw_box(canvas, box_w, row, col, color)
-    root.after(10, lambda: add_box(canvas, box_w, step_list, root))
+    root.after(10, lambda: add_box(canvas, box_w, step_list, root, build_maze_button))
     step_list = step_list[1:]
 
 
@@ -268,7 +270,7 @@ def create_gui():
 
     # Create build maze button for input execution
     build_maze_button = Button(master, text="Build Maze", command=lambda: get_width__and_height(
-        w, width_entry, height_entry, checked, master))
+        w, width_entry, height_entry, checked, master, build_maze_button))
     build_maze_button.place(x=100, y=400)
 
     # Create canvas which will house the maze animation
