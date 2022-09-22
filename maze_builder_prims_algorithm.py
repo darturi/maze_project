@@ -140,9 +140,12 @@ def maze_creator(h, w):
         x, y = cell[0], cell[1]
         wall_cell_list.append(cell)
         maze[x][y] = ['w']
+        # Add to step list
+        step_list.append([cell, ['w']])
 
     for cell in pick_entry_and_exit(height, width, maze):
         maze[cell[0]][cell[1]] = ['c']
+        step_list.append([cell, ['c']])
 
     return [maze, step_list]
 
@@ -155,12 +158,7 @@ def get_width__and_height(canvas, w_entry, h_entry, check_var, master):
 
     if check_var.get() == 0:
         draw_maze(canvas, maze_vals[0])
-    # This is not working
-    # |||
-    # VVV
     else:
-        print(maze_vals[1])
-
         animated_draw_maze(canvas, maze_vals[0], maze_vals[1], master)
 
 
@@ -212,19 +210,25 @@ def animated_draw_maze(canvas, maze, step_list, root):
 
     draw_maze(canvas, blank_maze)
 
-    # Draw each new square that gets passed in
-    for i in range(len(step_list)):
-        row, col, val = step_list[i][0][0], step_list[i][0][1], step_list[i][1]
-        print(row, col, val)
-        if val == ['w']:
-            300, draw_box(canvas, box_w, row, col, "blue") # .after(500)
-        else:
-            draw_box(canvas, box_w, row, col, "red") # .after(500)
+    add_box(canvas, box_w, step_list, root)
 
 
 def draw_box(canvas, box_w, row, col, color):
     canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
                             fill=color, outline="black")
+
+
+def add_box(canvas, box_w, step_list, root):
+    if not step_list:
+        return
+    row, col, val = step_list[0][0][0], step_list[0][0][1], step_list[0][1]
+    if val == ['c']:
+        color = "red"
+    else:
+        color = "blue"
+    draw_box(canvas, box_w, row, col, color)
+    root.after(10, lambda: add_box(canvas, box_w, step_list, root))
+    step_list = step_list[1:]
 
 
 def only_numbers(char):
