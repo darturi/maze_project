@@ -150,33 +150,44 @@ def maze_creator(h, w):
     return [maze, step_list]
 
 
-def get_width__and_height(canvas, w_entry, h_entry, check_var, master, build_maze_button):
-    width_val = int(w_entry.get())
-    height_val = int(h_entry.get())
+# Executes maze graphical representation protocols
+def execute_maze_representation(canvas, w_entry, h_entry, check_var, master, build_maze_button):
+    # collect width and height values from entry fields
+    width_val, height_val = int(w_entry.get()), int(h_entry.get())
 
+    # Create a maze and a step_list
     maze_vals = maze_creator(width_val, height_val)
 
+    # Toggle animation is not checked just make a maze
     if check_var.get() == 0:
         draw_maze(canvas, maze_vals[0])
+    # Toggle animation is checked animate the process of making the same maze
     else:
+        # Disable the build_maze_button until the animation is done running (happens in the below function)
         build_maze_button['state'] = "disabled"
         animated_draw_maze(canvas, maze_vals[0], maze_vals[1], master, build_maze_button)
 
 
+# Finds the greater of the two dimensions inputted (height or width) and then divides 600 by that value as to provide
+# an appropriate pixel count for the width (and by extension) height of a single cell in the generated grid
 def get_box_w(maze):
-    if len(maze) > len(maze[0]):
-        box_w_divisor = len(maze)
+    row_num, col_num = len(maze), len(maze[0])
+    if row_num > col_num:
+        box_w_divisor = row_num
     else:
-        box_w_divisor = len(maze[0])
+        box_w_divisor = col_num
 
     return 600 // box_w_divisor
 
 
 def draw_maze(canvas, maze):
+    # Calculate appropriate dimensions for a single cell in the grid
     box_w = get_box_w(maze)
 
-    # Draw the actual maze in rectangles
+    # Create a background square
     canvas.create_rectangle(0, 0, 600, 600, fill="white", outline="white")
+
+    # Draw the actual maze in rectangles
     for row in range(len(maze)):
         for col in range(len(maze[0])):
             if maze[row][col] == ['w']:
@@ -188,47 +199,56 @@ def draw_maze(canvas, maze):
 
 
 def animated_draw_maze(canvas, maze, step_list, root, build_maze_button):
-    row_num = len(maze)
-    col_num = len(maze[0])
+    row_num, col_num = len(maze), len(maze[0])
 
+    # Calculate appropriate dimensions for a single cell in the grid
     box_w = get_box_w(maze)
 
-    blank_maze = create_blank_maze(row_num, col_num)
+    # Set a blank canvas so that the new maze is not drawn over a previously existing maze
+    draw_maze(canvas, create_blank_maze(row_num, col_num))
 
-    draw_maze(canvas, blank_maze)
-
+    # Call the add_bix function for the first time (will proceed to call itself recursively)
     add_box(canvas, box_w, step_list, root, build_maze_button)
 
 
+# A function that will draw a single cell of the maze grid based on its position in the array as well as its value
 def draw_box(canvas, box_w, row, col, color):
     canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
                             fill=color, outline="black")
 
 
+# Function that recursively calls itself in order to animate the process of building the maze as based on a list
+# returned from the maze_creator() function that documents the process in which the maze was created step by step
+# (obviously chronologically)
 def add_box(canvas, box_w, step_list, root, build_maze_button):
+    # If step_list is empty (all items have gradually been removed) then return as to exit the recursion process
     if not step_list:
         build_maze_button['state'] = "active"
         return
     row, col, val = step_list[0][0][0], step_list[0][0][1], step_list[0][1]
     if val == ['c']:
-        color = "red"
+        draw_box(canvas, box_w, row, col, "red")
     else:
-        color = "blue"
-    draw_box(canvas, box_w, row, col, color)
+        draw_box(canvas, box_w, row, col, "blue")
+
+    # The below line is what determines the delay between when each square of the grid is added to the GUI
     root.after(10, lambda: add_box(canvas, box_w, step_list, root, build_maze_button))
+    # Deletes the added square from step_list
     step_list = step_list[1:]
 
 
+# This function is made to disallow any non-integer inputs into the entry fields
 def only_numbers(char):
     return char.isdigit()
 
 
+# Creates and manages the foundation and framework of the GUI
 def create_gui():
     master = Tk()
     master.geometry(f'{600 + 225}x{600}')
     master.title("Maze Builder")
 
-    # Validation Check
+    # Validation Check for entry input values
     validation = master.register(only_numbers)
 
     # Create canvas which will house the text elements for the GUI
@@ -255,7 +275,7 @@ def create_gui():
     velocity_vector_checkbox.place(x=80, y=375)
 
     # Create build maze button for input execution
-    build_maze_button = Button(master, text="Build Maze", command=lambda: get_width__and_height(
+    build_maze_button = Button(master, text="Build Maze", command=lambda: execute_maze_representation(
         w, width_entry, height_entry, checked, master, build_maze_button))
     build_maze_button.place(x=100, y=400)
 
@@ -263,7 +283,7 @@ def create_gui():
     w = Canvas(master, width=600, height=600)
     w.pack(side="right")
 
-    # Draw the maze (is supposed to start out with a blank maze)
+    # Draw the maze (starts out with a blank maze)
     draw_maze(w, create_blank_maze(15, 15))
 
     w.pack()
