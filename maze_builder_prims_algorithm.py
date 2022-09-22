@@ -163,49 +163,35 @@ def get_width__and_height(canvas, w_entry, h_entry, check_var, master, build_maz
         animated_draw_maze(canvas, maze_vals[0], maze_vals[1], master, build_maze_button)
 
 
-def draw_maze(canvas, maze):
+def get_box_w(maze):
     if len(maze) > len(maze[0]):
         box_w_divisor = len(maze)
     else:
         box_w_divisor = len(maze[0])
 
-    box_w = 600 // box_w_divisor
+    return 600 // box_w_divisor
+
+
+def draw_maze(canvas, maze):
+    box_w = get_box_w(maze)
 
     # Draw the actual maze in rectangles
     canvas.create_rectangle(0, 0, 600, 600, fill="white", outline="white")
     for row in range(len(maze)):
         for col in range(len(maze[0])):
             if maze[row][col] == ['w']:
-                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
-                                        fill="blue", outline="black")
+                draw_box(canvas, box_w, row, col, "blue")
             elif maze[row][col] == ['c']:
-                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
-                                        fill="red", outline="black")
+                draw_box(canvas, box_w, row, col, "red")
             else:
-                canvas.create_rectangle(box_w * col, box_w * row, box_w * col + box_w, box_w * row + box_w,
-                                        fill="grey", outline="black")
+                draw_box(canvas, box_w, row, col, "grey")
 
 
-# Expected maze return format:
-# [
-# [maze array],
-# [step_list]
-# ]
-
-# step_list format:
-# [
-# [[row, col], value], ...
-# ]
 def animated_draw_maze(canvas, maze, step_list, root, build_maze_button):
     row_num = len(maze)
     col_num = len(maze[0])
 
-    if row_num > col_num:
-        box_w_divisor = row_num
-    else:
-        box_w_divisor = col_num
-
-    box_w = 600 // box_w_divisor
+    box_w = get_box_w(maze)
 
     blank_maze = create_blank_maze(row_num, col_num)
 
