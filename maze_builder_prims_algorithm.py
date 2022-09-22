@@ -31,20 +31,14 @@ def check_if_border(height, width, cell):
     return False
 
 
-def get_adj_cells(height, width, cell, previously_checked_walls=[]):
+def get_adj_cells(height, width, cell):
     x, y = cell[0], cell[1]
 
     # Creates a list of all cells adjacent to the one passed in as input
     adj_cell_list = [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
 
-    # Remove all the cells that are adjacent to the original cell but are walls
-    non_border_cells = []
-    for i in adj_cell_list:
-        if not check_if_border(height, width, i) and i not in previously_checked_walls:
-            non_border_cells.append(i)
-
-    # return the results of the calculations of the function
-    return non_border_cells
+    # Remove all the cells that are adjacent to the original cell but are walls and return
+    return [i for i in adj_cell_list if not check_if_border(height, width, i)]
 
 
 def pick_entry_and_exit(height, width, maze):
@@ -81,11 +75,7 @@ def check_wall_division(wall_cell, maze):
     return True
 
 
-def maze_creator(h, w):
-    # define height and width
-    height = h
-    width = w
-
+def maze_creator(height, width):
     unchecked_cells = [[i, j] for i in range(height) for j in range(width)]
     checked_cells = []
     wall_cell_list = []
